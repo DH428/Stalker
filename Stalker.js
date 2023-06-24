@@ -855,7 +855,7 @@ function GetChannels(){
 
         let cache = file_content.split("\n");
 
-        for(i in cache){
+        for(let i in cache){
             cache[i] = cache[i].replace(/(\r)/g, '');
 
             // filter out comments and invalid links
@@ -868,7 +868,7 @@ function GetChannels(){
         
         cache = cache.filter(e => e);
 
-        for(i in cache){
+        for(let i in cache){
             if(cache[i].split(" ")[1].search(/!/g) == -1){
                 stuff[cache[i].replace(/(\r)/g, '').split(" ")[0]] = false;
             }else{
@@ -897,7 +897,7 @@ async function objectManager(){
         let channel_list = GetChannels();
     
         //creates new ytc object based on entries in channel_list_file
-        for(i in channel_list){
+        for(let i in channel_list){
             if(!(i in object_array)){
                 object_array[i] = new YTC(i, channel_list[i]);
                 logger(`created '${i}'`);
@@ -906,7 +906,7 @@ async function objectManager(){
         }
 
         // //remove objects, which prio was changed in channel_list_file
-        // for(i in channel_list){
+        // for(let i in channel_list){
         //     if(object_array[i] !== channel_list[i]){
         //         logger(`prio changed for '${i}' to '${channel_list[i] ? "high" : "low"}'`);
         //         object_array[i].flatline = true;
@@ -915,7 +915,7 @@ async function objectManager(){
         // }
 
         //deletes object, if its channel link has been removed from channel_list_file
-        for(i in object_array){
+        for(let i in object_array){
             if(!(i in channel_list)){
                 logger(`deleted '${i}'`);
                 object_array[i].flatline = true;
