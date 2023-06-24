@@ -1,5 +1,5 @@
-const request = require('request');
-const ytdl = require('ytdl-core');
+const request = require('/home/pi/node_modules/request');
+const ytdl = require('/home/pi/node_modules/ytdl-core');
 const fs = require('fs');
 const path = require("path");
 const spawner = require('child_process');
@@ -465,7 +465,7 @@ class YTC{
         }
 
         let content = `
-            const ytdl = require('ytdl-core');
+            const ytdl = require('/home/pi/node_modules/ytdl-core');
             const fs = require('fs');
             let args = process.argv.slice(2);
             function recordYTLS(url, title, cookie=''){
@@ -731,7 +731,7 @@ function logger(msg, log_name="", type="") {
         log_name = "debug";
     }
 
-    // console.log("--logger-- " + msg);
+    //console.log("--logger-- " + msg);
     fs.appendFile(debug_log_path + "/" + log_name + ".log", `${time_stamp}: ${msg}\n`, function (err){});
     fs.appendFile(debug_log_path + "/" + "debug_timeline.log", `${time_stamp}: ${msg}\n`, function (err){}); //easier timing overview
 
@@ -901,7 +901,7 @@ async function objectManager(){
             if(!(i in object_array)){
                 object_array[i] = new YTC(i, channel_list[i]);
                 logger(`created '${i}'`);
-                await new Promise(resolve => setTimeout(resolve, 1000)); //some pause, so that youtube wont see this as a dos
+                await sleep(1); //some pause, so that youtube wont see this as a dos
             }
         }
 
