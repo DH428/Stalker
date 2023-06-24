@@ -731,7 +731,7 @@ function logger(msg, log_name="", type="") {
         log_name = "debug";
     }
 
-    console.log("--logger-- " + msg);
+    // console.log("--logger-- " + msg);
     fs.appendFile(debug_log_path + "/" + log_name + ".log", `${time_stamp}: ${msg}\n`, function (err){});
     fs.appendFile(debug_log_path + "/" + "debug_timeline.log", `${time_stamp}: ${msg}\n`, function (err){}); //easier timing overview
 
