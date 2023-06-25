@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/DH428/Stalker/issues"
   },
-  "homepage": "https://github.com/DH428/Stalker#readme"
+  "homepage": "https://github.com/DH428/Stalker#readme",
+  "dependencies": {
+    "request": "^2.88.2",
+    "ytdl-core": "^4.11.4"
+  }
 }
