@@ -874,7 +874,7 @@ async function vodManager(){
                 continue;
             }
         
-            let bd = Math.floor(new Date(fs.statSync(list[i])["birthtime"]).getTime()/1000);
+            let bd = Math.floor(new Date(fs.statSync(list[i])["atimeMs"]).getTime()/1000);
         
             //search in provided path for low/high dir, not elegant, because stuff like "high/some_stuff/vods/low/not_so_funni_vtuber" will be missunderstood
             if(list[i].includes("/high/")){
