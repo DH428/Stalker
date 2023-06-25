@@ -514,8 +514,8 @@ class YTC{
 
         logger(`started recording ${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}'`, this.channel_name,  "", this);
         
-        this.subprocess = spawner.spawn("node", [downloader_file, url, "./" + this.vod_path + "/recorded/" + title, data]);
-
+        this.subprocess = spawner.spawn("node", [downloader_file, url, this.vod_path + "/recorded/" + title, data]);
+        
         this.subprocess.on('message', (message) => {
             logger(`recorder of '${title}' threw a message: '${message}'`, this.channel_name,  "", this);
         });
@@ -548,7 +548,7 @@ class YTC{
 
     //just some garbage ignore
     async subprocessSpawner2(url, title, data){
-        return spawner.spawn("youtube-dl", ["-o", "/mnt/stalker/StalkerPlayGround/vods" + this.vod_path + "/recorded/" + title, url, data]);
+        return spawner.spawn("youtube-dl", ["-o", this.vod_path + "/recorded/" + title, url, data]);
     }
 
     unixFormatCreator(time_stamp, unix_in_s=false){
