@@ -1,10 +1,10 @@
 {
   "name": "stalker",
   "version": "1.0.0",
-  "description": "",
   "main": "Stalker.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "stalker": "node Stalker.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/DH428/Stalker#readme",
   "dependencies": {
+    "express": "^4.18.2",
     "request": "^2.88.2",
     "ytdl-core": "^4.11.4"
-  }
+  },
+  "description": ""
 }
