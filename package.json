@@ -1,0 +1,19 @@
+{
+  "name": "stalker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Stalker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DH428/Stalker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DH428/Stalker/issues"
+  },
+  "homepage": "https://github.com/DH428/Stalker#readme"
+}

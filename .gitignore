@@ -2,5 +2,5 @@ node_modules
 vods
 logs
 channels.txt
-cookies.txt
+cookie.txt
 downloader.js
