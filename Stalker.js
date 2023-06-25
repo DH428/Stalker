@@ -913,7 +913,7 @@ function GetChannels(){
 
             // filter out comments and invalid links
             if(cache[i].search(/\/\//g) == 0 ||
-                cache[i].search(/(?:https|http)\:\/\/(?:[\w]+\.)?youtube\.com\/(?:c\/|channel\/|user\/|@)?([a-zA-Z0-9\-]{1,})/g) == -1
+                cache[i].search(/(?:https|http)\:\/\/(?:[\w]+\.)?youtube\.com\/(?:c\/|channel\/|user\/|@)?([a-zA-Z0-9\-_]{1,})/g) == -1
             ){
                 cache[i] = "";         
             }
