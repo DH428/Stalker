@@ -1,5 +1,5 @@
-const request = require('/home/pi/node_modules/request');
-const ytdl = require('/home/pi/node_modules/ytdl-core');
+const request = require('request');
+const ytdl = require('ytdl-core');
 const fs = require('fs');
 const path = require("path");
 const spawner = require('child_process');
@@ -465,7 +465,7 @@ class YTC{
         }
 
         let content = `
-            const ytdl = require('/home/pi/node_modules/ytdl-core');
+            const ytdl = require('ytdl-core');
             const fs = require('fs');
             let args = process.argv.slice(2);
             function recordYTLS(url, title, cookie=''){
@@ -731,7 +731,7 @@ function logger(msg, log_name="", type="") {
         log_name = "debug";
     }
 
-    //console.log("--logger-- " + msg);
+    // console.log("--logger-- " + msg);
     fs.appendFile(debug_log_path + "/" + log_name + ".log", `${time_stamp}: ${msg}\n`, function (err){});
     fs.appendFile(debug_log_path + "/" + "debug_timeline.log", `${time_stamp}: ${msg}\n`, function (err){}); //easier timing overview
 
