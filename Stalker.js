@@ -426,7 +426,7 @@ class YTC{
 
     //creates the path for vods, depends on provided information (like channel name or prio)
     createPath(channel_name_, prio_){
-        let root_path = "vods/";
+        let root_path = __dirname + "/vods/";
 
         //ik recursion could solve this better, but me too smoll brain
         //1st run: creates the root folder (vods/),
