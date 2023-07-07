@@ -33,6 +33,9 @@ class YTC{
         this.log_messages = [];
         this.log_limit = 5;
 
+        this.open_conn_query_count = 0; //open video details query count
+        this.active_subprocss_count = 0; //running subprocesses
+
         this.main();
     }
 
@@ -55,7 +58,7 @@ class YTC{
         
         //a cookie for a cookie ... u consent for cookie placement from youtube, if cookie is missing you will be shown an "accept cookies" template, thats what this pseudo_cookie garbage is for
         let pseudo_cookie = `CONSENT=YES+srp.gws-20210608-0-RC1.de+FX+${Math.floor(Math.random()*(999-100+1)+100)}`; //not sure why i need some 3 digit rng number ... but idc
-
+        pseudo_cookie = "";
         //i assume that, if channel is important/high_prio, additional content was purchased -> no user cookie, no special content
         //got a lot of unskippable ads after using this script for a bit, im sure youtube tracks activity and we dont want youtube to notice us right?
         if(!this.high_prio){
@@ -150,12 +153,17 @@ class YTC{
                                 logger(`corrector finished with errors for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name, "ERROR", this);
                             }else{
                                 logger(`corrector finished for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name,  "", this);
-                                logger(`deleting '${file_path}'`, this.channel_name,  "", this);
-                                fs.unlink(file_path, (err) => {
-                                    if(err){
-                                        logger(`can't remove '${file_path}', error: '${err}'`, this.channel_name, "ERROR", this);
-                                    }
-                                });
+                               
+                                if(Math.abs(fs.statSync(file_path).size - fs.statSync(full_vod_path).size) > 10000){
+                                    logger(`filesize diff detected for '${full_vod_path}' and '${file_path}'`, this.channel_name,  "WARNING", this);
+                                }else{
+                                    logger(`deleting '${file_path}'`, this.channel_name,  "", this);
+                                    fs.unlink(file_path, (err) => {
+                                        if(err){
+                                            logger(`can't remove '${file_path}', error: '${err}'`, this.channel_name, "ERROR", this);
+                                        }
+                                    });
+                                }
                             }
 
                             try{
@@ -263,6 +271,8 @@ class YTC{
 
     //returns vid info object
     async getYTInfo(url){
+        this.open_conn_query_count++;
+
         let cache;
         let data;
         let info = false;
@@ -326,6 +336,7 @@ class YTC{
         cache["videoDetails"]["title"] = cache["videoDetails"]["title"] ? cache["videoDetails"]["title"] : "empty_string";
         cache["videoDetails"]["ownerChannelName"] = cache["videoDetails"]["ownerChannelName"] ? cache["videoDetails"]["ownerChannelName"] : "empty_string";
 
+        this.open_conn_query_count--;
         return cache["videoDetails"]; //dont need more, crucial info is in "videoDetails"
     }
 
@@ -513,7 +524,7 @@ class YTC{
         title = this.renameFile(title);
 
         logger(`started recording ${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}'`, this.channel_name,  "", this);
-        
+        this.active_subprocss_count++;
         this.subprocess = spawner.spawn("node", [downloader_file, url, this.vod_path + "/recorded/" + title, data]);
         
         this.subprocess.on('message', (message) => {
@@ -526,6 +537,7 @@ class YTC{
 
         this.subprocess.on('error', (err) => {
             logger(`recorder of '${title}' threw an error: '${err}'`, this.channel_name, "ERROR", this);
+            this.active_subprocss_count--;
         });
 
         this.subprocess.on('close', (code, sig) => {
@@ -535,6 +547,7 @@ class YTC{
                 logger(`recorder of '${title}' stopped: '${code}': ${sig}`, this.channel_name,  "", this);
             }
             
+            this.active_subprocss_count--;
             this.fixRecordedStreams();
             this.subprocess = false;
         });
@@ -958,14 +971,14 @@ async function objectManager(){
             }
         }
 
-        // //remove objects, which prio was changed in channel_list_file
-        // for(let i in channel_list){
-        //     if(object_array[i] !== channel_list[i]){
-        //         logger(`prio changed for '${i}' to '${channel_list[i] ? "high" : "low"}'`);
-        //         object_array[i].flatline = true;
-        //         delete object_array[i];
-        //     }
-        // }
+        //remove objects, which prio was changed in channel_list_file
+        for(let i in channel_list){
+            if(object_array[i].high_prio !== channel_list[i]){
+                logger(`prio changed for '${i}' to '${channel_list[i] ? "high" : "low"}'`);
+                object_array[i].flatline = true;
+                delete object_array[i];
+            }
+        }
 
         //deletes object, if its channel link has been removed from channel_list_file
         for(let i in object_array){
