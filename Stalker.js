@@ -169,12 +169,15 @@ class YTC{
                             }else{
                                 logger(`corrector finished for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name,  "", this);
                                 
-                                let size_sort_asc = [
-                                    fs.statSync(file_path).size,
-                                    fs.statSync(full_vod_path).size
-                                ].sort((a, b) => {
-                                    return a.size.localeCompare(b.size);
-                                });
+                                let size_sort_asc = [];
+
+                                if(fs.statSync(file_path).size > fs.statSync(full_vod_path).size){
+                                    size_sort_asc.push(full_vod_path);
+                                    size_sort_asc.push(file_path);
+                                }else{
+                                    size_sort_asc.push(file_path);
+                                    size_sort_asc.push(full_vod_path);
+                                }
 
                                 let percent_size_dif = 100 - 100*size_sort_asc[1]/size_sort_asc[0];
 
