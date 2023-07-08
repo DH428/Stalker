@@ -30,11 +30,13 @@ class YTC{
 
         this.currently_correcting = [];
 
-        this.log_messages = [];
+        this.log_messages = {};
         this.log_limit = 5;
 
         this.open_conn_query_count = 0; //open video details query count
         this.active_subprocss_count = 0; //running subprocesses
+
+        this.vod_threshold_percent = 10; //size difference between corrected and recorded vod in percent, if greater, warning in log and no deletion of raw recording
 
         this.main();
     }
@@ -153,8 +155,17 @@ class YTC{
                                 logger(`corrector finished with errors for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name, "ERROR", this);
                             }else{
                                 logger(`corrector finished for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name,  "", this);
-                               
-                                if(Math.abs(fs.statSync(file_path).size - fs.statSync(full_vod_path).size) > 10000){
+                                
+                                let size_sort_asc = [
+                                    fs.statSync(file_path).size,
+                                    fs.statSync(full_vod_path).size
+                                ].sort((a, b) => {
+                                    return a.name.localeCompare(b.size);
+                                });
+
+                                let percent_size_dif = 100 - 100*size_sort_asc[1]/size_sort_asc[0];
+
+                                if(percent_size_dif > this.vod_threshold_percent){
                                     logger(`filesize diff detected for '${full_vod_path}' and '${file_path}'`, this.channel_name,  "WARNING", this);
                                 }else{
                                     logger(`deleting '${file_path}'`, this.channel_name,  "", this);
@@ -785,16 +796,29 @@ function logger(msg, log_name="", type="", ytc_object_ref=false) {
 
     time_stamp = `${year}.${month}.${day} ${hour}:${min}:${sec}.${ms}`;
 
+    if(ytc_object_ref && ytc_object_ref.log_messages){
+        if(type){
+            if(!ytc_object_ref.log_messages[type] || !Array.isArray(ytc_object_ref.log_messages[type])){
+                ytc_object_ref.log_messages[type] = [];
+            }
+
+            ytc_object_ref.log_messages[type].unshift(`${time_stamp}: ${msg}`);
+            ytc_object_ref.log_messages[type] = ytc_object_ref.log_messages[type].slice(0, ytc_object_ref.log_limit);
+        }else{
+            if(!ytc_object_ref.log_messages["DEBUG"] || !Array.isArray(ytc_object_ref.log_messages["DEBUG"])){
+                ytc_object_ref.log_messages["DEBUG"] = [];
+            }
+
+            ytc_object_ref.log_messages["DEBUG"].unshift(`${time_stamp}: ${msg}`);
+            ytc_object_ref.log_messages["DEBUG"] = ytc_object_ref.log_messages["DEBUG"].slice(0, ytc_object_ref.log_limit);
+        }
+    }
+
     msg = type ? `${type}: ${msg}`: msg;
 
     if(!log_name || log_name.includes("//")){
         msg = log_name.includes("//") ? `${msg} '${log_name}'` : msg;
         log_name = "debug";
-    }
-
-    if(ytc_object_ref && ytc_object_ref.log_messages){
-        ytc_object_ref.log_messages.unshift(`${time_stamp}: ${msg}`);
-        ytc_object_ref.log_messages = ytc_object_ref.log_messages.slice(0, ytc_object_ref.log_limit)
     }
 
     // console.log("--logger-- " + msg);
@@ -996,8 +1020,12 @@ async function objectManager(){
 function api(){
     var app = express();
 
-    app.get('/', (req, res) => {
+    app.get('/api/data', (req, res) => {
         return res.send(JSON.stringify(object_array));
+    });
+
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, '/index.html'));
     });
 
     app.listen("3001", () => {});
