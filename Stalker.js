@@ -84,8 +84,21 @@ class YTC{
 
     //returns first (usually the latest/main video is the first match) yt video link found in the provided html body
     awesomeCrawler(html){
-        let serach_for = /\/watch\?v=[^"]*/;
-        return "https://youtube.com" + html.match(serach_for)[0];
+        let stuff = JSON.parse(html.match(/(?<=var ytInitialData = )(.*)(?=;<\/script>)/g)[0].replace(/(\r\n|\n|\r)/g, ""));
+        
+        try{
+            for(let i = 0; i < stuff.contents.twoColumnBrowseResultsRenderer.tabs.length; i++){
+                if(stuff.contents.twoColumnBrowseResultsRenderer.tabs[i].tabRenderer.title == "Live"){
+                    return "https://youtube.com/watch?v=" + stuff.contents.twoColumnBrowseResultsRenderer.tabs[i].tabRenderer.content.richGridRenderer.contents[0].richItemRenderer.content.videoRenderer.videoId;
+                }
+            }
+        }catch(e){};
+
+        try{
+            return "https://youtube.com/watch?v=" + stuff.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.updatedMetadataEndpoint.updatedMetadataEndpoint.videoId;
+        }catch(e){}
+    
+        return false;
     }
 
     //recorded livestreams don't have any headers/footers (i think) and most of the players can't do shit witout them (bless vlc), this basically copies the vod and (thanks to smort) ffmpeg adds the missing stuff  
@@ -253,6 +266,10 @@ class YTC{
                 }, (err, response, body) => {
                     try{
                         let vid_url = com_post ? this.returnLatestComVid(body) : this.awesomeCrawler(body)
+
+                        if(!vid_url){
+                            throw "no_link_found";
+                        }
 
                         if(info){
                             logger(`successfully retrieved latest vod link of '${(this.channel_name ? this.channel_name : url_channel_)}' after ${c} retries`, this.channel_name ? this.channel_name : "",  "", this);
