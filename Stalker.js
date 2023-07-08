@@ -160,7 +160,7 @@ class YTC{
                                     fs.statSync(file_path).size,
                                     fs.statSync(full_vod_path).size
                                 ].sort((a, b) => {
-                                    return a.name.localeCompare(b.size);
+                                    return a.size.localeCompare(b.size);
                                 });
 
                                 let percent_size_dif = 100 - 100*size_sort_asc[1]/size_sort_asc[0];
