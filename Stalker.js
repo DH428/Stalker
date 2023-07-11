@@ -84,21 +84,14 @@ class YTC{
 
     //returns first (usually the latest/main video is the first match) yt video link found in the provided html body
     awesomeCrawler(html){
-        let stuff = JSON.parse(html.match(/(?<=var ytInitialData = )(.*)(?=;<\/script>)/g)[0].replace(/(\r\n|\n|\r)/g, ""));
-        
-        try{
-            for(let i = 0; i < stuff.contents.twoColumnBrowseResultsRenderer.tabs.length; i++){
-                if(stuff.contents.twoColumnBrowseResultsRenderer.tabs[i].tabRenderer.title == "Live"){
-                    return "https://youtube.com/watch?v=" + stuff.contents.twoColumnBrowseResultsRenderer.tabs[i].tabRenderer.content.richGridRenderer.contents[0].richItemRenderer.content.videoRenderer.videoId;
-                }
-            }
-        }catch(e){};
+        const crawl = require("./modules/awesomeCrawler");
+        let crawl_resp = crawl(html);
 
-        try{
-            return "https://youtube.com/watch?v=" + stuff.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.updatedMetadataEndpoint.updatedMetadataEndpoint.videoId;
-        }catch(e){}
-    
-        return false;
+        if(crawl_resp.error){
+            logger(`crawler couldn't extract url '${crawl_resp.error}'`, this.channel_name, "ERROR", this);
+        }
+
+        return crawl_resp.data;
     }
 
     //recorded livestreams don't have any headers/footers (i think) and most of the players can't do shit witout them (bless vlc), this basically copies the vod and (thanks to smort) ffmpeg adds the missing stuff  
@@ -127,6 +120,10 @@ class YTC{
                         if(this.currently_correcting.hasOwnProperty(full_vod_path)){
                             logger(`corrector for '${file_name}' already working ...`, this.channel_name, "", this);
                             return;
+                        }
+
+                        if(fs.existsSync(full_vod_path)){
+                            logger(`'${file_name}' already exists`, this.channel_name, "", this);
                         }
 
                         this.currently_correcting[full_vod_path] = true;
@@ -214,37 +211,15 @@ class YTC{
     }
 
     //like awesomeCrawler ... but better ... i think ... returns url of the latest vod/stream from provided community tab body
-    returnLatestComVid(body){
-        let stuff = JSON.parse(body.match(/(?<=var ytInitialData = )(.*)(?=;<\/script>)/g)[0].replace(/(\r\n|\n|\r)/g, ""));
+    returnLatestComVid(html){
+        const crawl = require("./modules/returnLatestComVid");
+        let crawl_resp = crawl(html);
 
-        let member_tab_index = -1;
-
-        for(let i = 0; i < stuff["contents"]["twoColumnBrowseResultsRenderer"]["tabs"].length; i++){
-            try{
-                if(stuff["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][i]["tabRenderer"]["tabIdentifier"] == "TAB_ID_SPONSORSHIPS"){
-                    member_tab_index = i;
-                    break;
-                }
-            }catch{}
+        if(crawl_resp.error){
+            logger(`crawler couldn't extract community url '${crawl_resp.error}'`, this.channel_name, "ERROR", this);
         }
 
-        if(member_tab_index < 0){
-            logger(`cant find member tab for '${(this.channel_name ? this.channel_name : this.url_channel)}'`, (this.channel_name ? this.channel_name : ""), "WARNING", this);
-        }else{
-            for (let tab in stuff["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][member_tab_index]["tabRenderer"]["content"]["sectionListRenderer"]["contents"][1]["itemSectionRenderer"]["contents"]){
-                //simple text posts dont contain ["backstageAttachment"] in json/dict/key value pair thingy or whatever its called
-                try{
-                    //unarchived/private(/img) returs undefined
-                    if(!stuff["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][member_tab_index]["tabRenderer"]["content"]["sectionListRenderer"]["contents"][1]["itemSectionRenderer"]["contents"][tab]["videoRenderer"]["videoId"]){
-                        continue;
-                    }
-
-                    return "https://youtube.com/watch?v=" + stuff["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][member_tab_index]["tabRenderer"]["content"]["sectionListRenderer"]["contents"][1]["itemSectionRenderer"]["contents"][tab]["videoRenderer"]["videoId"];
-                }catch{}
-            }
-        }
-    
-        return false;
+        return crawl_resp.data;
     }
 
     //returns a yt link of the latest video on channel, false if crawler didn't found a video (prob wrong page or no connectiont)
@@ -262,13 +237,13 @@ class YTC{
                 }
 
                 await request({
-                    url:url_channel_ + (com_post ? "/membership" : "/live"),
+                    url:url_channel_ + (com_post ? "/membership" : "/streams"),
                     headers: {
                         'cookie': this.readCookie(cookie_path)
                     }
                 }, (err, response, body) => {
                     try{
-                        let vid_url = com_post ? this.returnLatestComVid(body) : this.awesomeCrawler(body)
+                        let vid_url = com_post ? this.returnLatestComVid(body) : this.awesomeCrawler(body);
 
                         if(!vid_url){
                             throw "no_link_found";
@@ -919,11 +894,34 @@ async function logManager(){
     }
 }
 
+function getAvailableDiskSpace(){
+    return new Promise(resolve => {
+        let child = spawner.spawn("df", ["--output=avail", __dirname]);
+
+        child.stdout.setEncoding('utf8');
+        child.stdout.on('data', function(data) {
+            resolve(data.split("\n")[1]);
+        });
+
+        child.stderr.setEncoding('utf8');
+        child.stderr.on('data', function(data) {
+            logger(`failed to get available disc space: '${data}'`);
+            resolve(false);
+        });
+    });
+    
+}
+
 //removes old vods, lifespan based on prio
 async function vodManager(){
     while(true){            
         let list = getAllFiles("vods");
         let time_now = Math.floor(new Date().getTime()/1000);
+        
+        let available_disk_space = await getAvailableDiskSpace();
+        if(typeof available_disk_space != "boolean" && available_disk_space < 10000000){ // <10gb
+            logger(`disk space warning: ${available_disk_space} left !`);
+        }
         
         //checking creation date of every vod in "vods/" and removing, if older than, based on prio, <age>
         for(let i in list){
@@ -1042,6 +1040,18 @@ function api(){
 
     app.get('/api/data', (req, res) => {
         return res.send(JSON.stringify(object_array));
+    });
+
+    app.get('/api/log', (req, res) => {
+        let resp = {};
+
+        req.query.logs.split(",").forEach(log => {
+            try{
+                resp[log] = fs.readFileSync(`logs/${log.replace(/\/|\.\./g, '')}`, 'utf8');
+            }catch(e){}
+        });
+
+        return res.send(JSON.stringify(resp));
     });
 
     app.get('/', (req, res) => {
