@@ -1,0 +1,16 @@
+
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 100% 50%; }
+    50% { background-position: 200% 100%; }
+    75% { background-position: 100% 50%; }
+    100% { background-position: 0% 0%; }
+  }
+  
+  .rainbow-animation {
+    background: linear-gradient(to right, #e16f6f, #f3bb53, #efef58, #51e251, #7c7ce9);
+    background-size: 500% auto;
+    animation: rainbow 5s linear infinite; /* Adjust the duration (10s) as desired */
+    background-clip: text;
+    color: transparent;
+  }
