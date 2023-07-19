@@ -34,11 +34,11 @@ const Card: React.FC<CardProps> = ({channelURL, title, thumbnail, isLiveNow, aut
     const parsedTitle = parseTitle(title, 50);
 
     return (
-        <div className="relative mx-10 my-4 h-56 w-96 rounded-2xl bg-contain drop-shadow-lg transition-all duration-500 hover:translate-y-1 hover:cursor-pointer" onClick={() => {
+        <div className="relative min-w-[400px] mx-10 mb-4 h-56 w-96 rounded-2xl bg-contain drop-shadow-lg transition-all duration-500 hover:translate-y-1 hover:cursor-pointer" onClick={() => {
             window.location.href = channelURL
         }}>            
             <div className="absolute inset-0 z-20 flex flex-col justify-between p-4">
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col">
                     <div className="flex space-x-4">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-900">
                             <img src={author.thumbnail.url} alt="Youtube Thumbnail" className="w-8 h-8 rounded-full"/>

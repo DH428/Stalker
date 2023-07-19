@@ -1,6 +1,7 @@
 "use client"
 import Card from "./Components/Card/Card";
 import Navbar from "./Components/Navbar/Navbar";
+import CardContainer from "./Components/CardContainer/CardContainer";
 
 
 export default function Home() {
@@ -42,45 +43,67 @@ export default function Home() {
     }
   }
 
+  const cards = [<>
+    <Card
+      channelURL={channelURL}
+      title={title}
+      thumbnail={thumbnail}
+      isLiveNow={isLiveNow}
+      author={author}
+      isRecording={false}
+    />
+    <Card
+      channelURL={channelURL}
+      title={title}
+      thumbnail={thumbnail}
+      isLiveNow={true}
+      author={author}
+      isRecording={false}
+    />
+    <Card
+      channelURL={channelURL}
+      title={title}
+      thumbnail={thumbnail}
+      isLiveNow={true}
+      author={author}
+      isRecording={true}
+    />
+    <Card
+      channelURL={channelURL2}
+      title={title2}
+      thumbnail={thumbnail2}
+      isLiveNow={true}
+      author={author2}
+      isRecording={true}
+    />        <Card
+      channelURL={channelURL2}
+      title={title2}
+      thumbnail={thumbnail2}
+      isLiveNow={true}
+      author={author2}
+      isRecording={true}
+    />        <Card
+      channelURL={channelURL2}
+      title={title2}
+      thumbnail={thumbnail2}
+      isLiveNow={true}
+      author={author2}
+      isRecording={true}
+    /></>
+  ]
+
 
   return (
-    <main className="h-screen flex flex-wrap">
-      <Navbar />
-      <div className="flex flex-wrap overflow-hidden">
-        <Card
-          channelURL={channelURL}
-          title={title}
-          thumbnail={thumbnail}
-          isLiveNow={isLiveNow}
-          author={author}
-          isRecording={false}
-        />
-        <Card
-          channelURL={channelURL}
-          title={title}
-          thumbnail={thumbnail}
-          isLiveNow={true}
-          author={author}
-          isRecording={false}
-        />
-        <Card
-          channelURL={channelURL}
-          title={title}
-          thumbnail={thumbnail}
-          isLiveNow={true}
-          author={author}
-          isRecording={true}
-        />
-        <Card
-          channelURL={channelURL2}
-          title={title2}
-          thumbnail={thumbnail2}
-          isLiveNow={true}
-          author={author2}
-          isRecording={true}
-        />
+    <>
+      <div className="h-screen flex flex-col">
+        <Navbar />
+        <main className="flex overflow-auto flex-wrap w-screen h-screen">
+          <div className="flex w-screen flex-col min-h-screen max-h-screen">
+            <CardContainer title="Live Now" cards={cards} />
+            <CardContainer title="Recorded" cards={cards} />
+          </div>
+        </main>
       </div>
-
-    </main>
+    </>
   )
 }
