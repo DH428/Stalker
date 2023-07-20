@@ -6,6 +6,8 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --scroll-bg: #13131b;
+  --scroll-foreground: rgb(29, 29, 47);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,6 +18,8 @@
   }
 }
 
+
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -24,4 +28,32 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+body {
+  background-image: linear-gradient(#1a1a26, 1px, transparent 1px),
+    linear-gradient(90deg, #1a1a26, 1px, transparent 1px);
+  background-size: 2.25em 2.25em;
+  background-color: #181827;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-foreground) var(--scroll-bg);
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 15px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scroll-bg);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-foreground);
+  border-radius: 14px;
+  border: 3px solid var(--scroll-bg);
 }
