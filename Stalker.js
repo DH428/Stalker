@@ -279,6 +279,10 @@ class YTC{
         let prev_url = url;
 
         while(true){
+            if(this.flatline){
+                return [];
+            }
+
             await this.sleep(sleep_time);
 
             data = {requestOptions:{headers:{cookie: this.readCookie(cookie_path)}}};
@@ -309,10 +313,6 @@ class YTC{
 
             //prevents infinite loop, if vod get privated/deleted/unavailable
             if(d>10){
-                if(this.flatline){
-                    return [];
-                }
-
                 logger(`too many retries, while trying to get latest vod info of '${url}', getting new latest vod url instead`, this.channel_name ? this.channel_name : "", "ERROR", this);
                 this.url_latest_vid = await this.getLatestVidUrl(this.url_channel, false);
                 url = this.url_latest_vid;
@@ -578,6 +578,10 @@ class YTC{
         let i = 0;
 
         while(true){
+            if(this.flatline){
+                return;
+            }
+
             if(i>3){
                 logger(`failed to create dir for '${this.url_channel}', exiting ...`, type="ERROR", this);
                 process.exit();
@@ -711,11 +715,7 @@ class YTC{
                 let ec = 0;
                 let le;
 
-                while(!old_vod_size){
-                    if(this.flatline){
-                        break;
-                    }
-
+                while(!old_vod_size && !this.flatline){
                     try{
                         old_vod_size = fs.statSync(`${this.vod_path}/recorded/${vod_title}.mp4`).size;
                         break
