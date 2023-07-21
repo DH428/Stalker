@@ -164,27 +164,18 @@ class YTC{
                             if(code){
                                 logger(`corrector finished with errors for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name, "ERROR", this);
                             }else{
-                                logger(`corrector finished for '${file_path}' (code: ${code} sig: ${sig})`, this.channel_name,  "", this);
-                                
-                                let size_sort_asc = [];
+                                logger(`corrector finished for '${file_path}'`, this.channel_name,  "", this);
 
-                                if(fs.statSync(file_path).size > fs.statSync(full_vod_path).size){
-                                    size_sort_asc.push(full_vod_path);
-                                    size_sort_asc.push(file_path);
-                                }else{
-                                    size_sort_asc.push(file_path);
-                                    size_sort_asc.push(full_vod_path);
-                                }
-
-                                let percent_size_dif = 100 - 100*size_sort_asc[1]/size_sort_asc[0];
+                                let percent_size_dif = 100 - 100*fs.statSync(full_vod_path).size/fs.statSync(file_path).size;
 
                                 if(percent_size_dif > this.vod_threshold_percent){
                                     logger(`filesize diff detected for '${full_vod_path}' and '${file_path}'`, this.channel_name,  "WARNING", this);
                                 }else{
+                                    // logger(`should delete '${file_path}'`, this.channel_name,  "", this);
                                     logger(`deleting '${file_path}'`, this.channel_name,  "", this);
                                     fs.unlink(file_path, (err) => {
                                         if(err){
-                                            logger(`can't remove '${file_path}', error: '${err}'`, this.channel_name, "ERROR", this);
+                                            logger(`can't delete '${file_path}', error: '${err}'`, this.channel_name, "ERROR", this);
                                         }
                                     });
                                 }
@@ -288,6 +279,10 @@ class YTC{
         let prev_url = url;
 
         while(true){
+            if(this.flatline){
+                return [];
+            }
+
             await this.sleep(sleep_time);
 
             data = {requestOptions:{headers:{cookie: this.readCookie(cookie_path)}}};
@@ -318,10 +313,6 @@ class YTC{
 
             //prevents infinite loop, if vod get privated/deleted/unavailable
             if(d>10){
-                if(this.flatline){
-                    return [];
-                }
-
                 logger(`too many retries, while trying to get latest vod info of '${url}', getting new latest vod url instead`, this.channel_name ? this.channel_name : "", "ERROR", this);
                 this.url_latest_vid = await this.getLatestVidUrl(this.url_channel, false);
                 url = this.url_latest_vid;
@@ -563,6 +554,8 @@ class YTC{
         //}catch(e){
         //    logger("failed to change prio of " + title + " (" + e + ")")
         //}
+
+        return title;
     }
 
     //just some garbage ignore
@@ -585,6 +578,10 @@ class YTC{
         let i = 0;
 
         while(true){
+            if(this.flatline){
+                return;
+            }
+
             if(i>3){
                 logger(`failed to create dir for '${this.url_channel}', exiting ...`, type="ERROR", this);
                 process.exit();
@@ -711,33 +708,72 @@ class YTC{
                 logger(`${this.video_details["ownerChannelName"]} is streaming '${this.video_details["title"]}'`, this.channel_name,  "", this)
 
                 let started_recording = Math.floor(new Date().getTime()/1000);
-                this.subprocessSpawner(this.url_latest_vid, this.video_details["title"], this.readCookie(cookie_path));
 
-                while(this.video_details["liveBroadcastDetails"]["isLiveNow"]){
-                    for(let i = 0; i < 10; i++){
-                        if(!this.subprocess || this.flatline){                            
-                            break;
-                        }
+                //don't ask .. title is being generated IN the function and can't be access from outside ... too lazy to rework
+                let vod_title = await this.subprocessSpawner(this.url_latest_vid, this.video_details["title"], this.readCookie(cookie_path));
+                let old_vod_size = false;
+                let ec = 0;
+                let le;
 
-                        await this.sleep(10);
+                while(!old_vod_size && !this.flatline){
+                    try{
+                        old_vod_size = fs.statSync(`${this.vod_path}/recorded/${vod_title}.mp4`).size;
+                        break
+                    }catch(e){
+                        ec++;
+                        le = e;
                     }
 
-                    if(!this.subprocess || this.flatline){                            
+                    if(ec > 60){
+                        logger(`cannot get size of '${this.vod_path}/recorded/${vod_title}.mp4': '${le}'`, this.channel_name, "ERROR", this);
+
+                        try{
+                            this.subprocess.kill();
+                        }catch(e){}
+                        finally{
+                            this.subprocess = false;
+                        }
+
                         break;
                     }
 
-                    //currently ytdl-core doesnt know (and i dont know how to make it know), when stream ends, so you have to check "manually" and kill the process if needed
-                    this.video_details = await this.getYTInfo(this.url_latest_vid);
+                    await this.sleep(1);
                 }
 
-                let stopped_recording = Math.floor(new Date().getTime()/1000);
+                while(this.subprocess && fs.existsSync(`${this.vod_path}/recorded/${vod_title}.mp4`) && !this.flatline){
+                    await this.sleep(10);
+                    ec = 0;
+
+                    if(!fs.existsSync(`${this.vod_path}/recorded/${vod_title}.mp4`)){
+                        continue;
+                    }
+
+                    while(old_vod_size == fs.statSync(`${this.vod_path}/recorded/${vod_title}.mp4`).size){
+                        ec++;
+                        if(ec > 60 || this.flatline){    
+                            try{
+                                this.subprocess.kill();
+                            }catch(e){}
+                            finally{
+                                this.subprocess = false;
+                            }
+    
+                            break;
+                        }
+    
+                        await this.sleep(1);
+                    }
+                }
+
                 logger(`${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}' ended (duration: ${this.unixFormatCreator(stopped_recording-started_recording, true)})`, this.channel_name,  "", this);
 
-                //killing subprocess "manually" if stream ends
+                //just to be sure
                 try{
                     this.subprocess.kill();
+                }catch(e){}
+                finally{
                     this.subprocess = false;
-                }catch{}
+                }
 
                 //check if stream continues later on, for 15 min (prevents 300s sleep scycle; tolerance for fe: short internet outage/youtube beeing youtube/streamer disconnected)
                 for(let i = 0; i < 45; i++){ 
@@ -977,10 +1013,11 @@ function GetChannels(){
         cache = cache.filter(e => e);
 
         for(let i in cache){
-            if(cache[i].split(" ")[1].search(/!/g) == -1){
-                stuff[cache[i].replace(/(\r)/g, '').split(" ")[0]] = false;
-            }else{
+            try{
+                cache[i].split(" ")[1].search(/!/g);
                 stuff[cache[i].split(" ")[0]] = true;
+            }catch(e){
+                stuff[cache[i].split(" ")[0]] = false;
             }
         }
 
