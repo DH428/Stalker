@@ -2,6 +2,8 @@
 import Card from "./Components/Card/Card";
 import Navbar from "./Components/Navbar/Navbar";
 import CardContainer from "./Components/CardContainer/CardContainer";
+import Sidebar from "./Components/Sidebar/Sidebar";
+import { VtuberData } from "./types/vtuberData";
 
 
 export default function Home() {
@@ -43,64 +45,79 @@ export default function Home() {
     }
   }
 
-  const cards = [<>
-    <Card
-      channelURL={channelURL}
-      title={title}
-      thumbnail={thumbnail}
-      isLiveNow={isLiveNow}
-      author={author}
-      isRecording={false}
-    />
-    <Card
-      channelURL={channelURL}
-      title={title}
-      thumbnail={thumbnail}
-      isLiveNow={true}
-      author={author}
-      isRecording={false}
-    />
-    <Card
-      channelURL={channelURL}
-      title={title}
-      thumbnail={thumbnail}
-      isLiveNow={true}
-      author={author}
-      isRecording={true}
-    />
-    <Card
-      channelURL={channelURL2}
-      title={title2}
-      thumbnail={thumbnail2}
-      isLiveNow={true}
-      author={author2}
-      isRecording={true}
-    />        <Card
-      channelURL={channelURL2}
-      title={title2}
-      thumbnail={thumbnail2}
-      isLiveNow={true}
-      author={author2}
-      isRecording={true}
-    />        <Card
-      channelURL={channelURL2}
-      title={title2}
-      thumbnail={thumbnail2}
-      isLiveNow={true}
-      author={author2}
-      isRecording={true}
-    /></>
-  ]
+  const vtubers : VtuberData[] = [
+    {
+      channelURL: channelURL,
+      title: title,
+      thumbnailURL: thumbnail.url,
+      isLive: false,
+      isRecording: false,
+      author: {
+        name: author.name,
+        iconURL: author.thumbnail.url
+      }
+    },
+    {
+      channelURL: channelURL,
+      title: title,
+      thumbnailURL: thumbnail.url,
+      isLive: true,
+      isRecording: false,
+      author: {
+        name: author.name,
+        iconURL: author.thumbnail.url
+      }
+    },
+    {
+      channelURL: channelURL,
+      title: title,
+      thumbnailURL: thumbnail.url,
+      isLive: true,
+      isRecording: true,
+      author: {
+        name: author.name,
+        iconURL: author.thumbnail.url
+      }
+    },
+    {
+      channelURL: channelURL2,
+      title: title2,
+      thumbnailURL: thumbnail2.url,
+      isLive: true,
+      isRecording: false,
+      author: {
+        name: author.name,
+        iconURL: author.thumbnail.url
+      }
+    },
+    {
+      channelURL: channelURL2,
+      title: title2,
+      thumbnailURL: thumbnail2.url,
+      isLive: false,
+      isRecording: false,
+      author: {
+        name: author.name,
+        iconURL: author.thumbnail.url
+      }
+    },
+    
+  ];
 
 
   return (
     <>
       <div className="h-screen flex flex-col">
-        <Navbar />
+
         <main className="flex overflow-auto flex-wrap w-screen h-screen">
-          <div className="flex w-screen flex-col min-h-screen max-h-screen">
-            <CardContainer title="Live Now" cards={cards} />
-            <CardContainer title="Recorded" cards={cards} />
+
+          <Navbar />
+          <div className="flex w-screen flex-row min-h-screen max-h-screen">
+            <Sidebar liveStreamers={[
+              { iconURL: "/android-chrome-192x192.png", name: "ina", channelURL: "https://www.youtube.com/channel/UCMwGHR0BTZuLsmjY_NT5Pwg" },
+              { iconURL: "https://yt3.ggpht.com/8B_T08sx8R7XVi5Mwx_l9sjQm5FGWGspeujSvVDvd80Zyr-3VvVTRGVLOnBrqNRxZp6ZeXAV=s176-c-k-c0x00ffffff-no-nd-rj", name: "cali", channelURL: "https://www.youtube.com/channel/UCL_qhgtOy0dy1Agp8vkySQg" }
+            ]} />
+            <CardContainer title="Recorded" vtubers={vtubers} />
           </div>
         </main>
       </div>
