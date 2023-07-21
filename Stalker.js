@@ -750,7 +750,11 @@ class YTC{
 
                     while(old_vod_size == fs.statSync(`${this.vod_path}/recorded/${vod_title}.mp4`).size){
                         ec++;
-                        if(ec > 60 || this.flatline){    
+                        if(ec > 60 || this.flatline){
+                            if(ec > 60){
+                                logger(`no size change for ${vod_title} detected, stopping recorder ...`, this.channel_name,  "", this);
+                            }
+                            
                             try{
                                 this.subprocess.kill();
                             }catch(e){}
@@ -767,7 +771,7 @@ class YTC{
                     old_vod_size = fs.statSync(`${this.vod_path}/recorded/${vod_title}.mp4`).size;
                 }
 
-                logger(`${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}' ended (duration: ${this.unixFormatCreator(stopped_recording-started_recording, true)})`, this.channel_name,  "", this);
+                logger(`${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}' ended (duration: ${this.unixFormatCreator(Math.floor(new Date().getTime()/1000)-started_recording, true)})`, this.channel_name,  "", this);
 
                 //just to be sure
                 try{
@@ -786,7 +790,7 @@ class YTC{
                     await this.getLatestVidInfo(this.url_channel);
 
                     if(this.video_details["liveBroadcastDetails"]["isLiveNow"]){
-                        this.sleep_time = 0;
+                        this.sleep_time = 1;
                         logger(`${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}' continues ...`, this.channel_name,  "", this);
                         this.first_run = true;
                         break;
