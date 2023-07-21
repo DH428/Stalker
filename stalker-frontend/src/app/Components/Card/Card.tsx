@@ -2,27 +2,10 @@
 
 import React from 'react'
 import styles from './Card.module.css'
-
-type CardProps = {
-    channelURL: string
-    title: string
-    thumbnail: {
-        url: string
-        width: number
-        height: number
-    }
-    isLiveNow: boolean
-    author: {
-        name: string
-        thumbnail: {
-            url: string
-        }
-    },
-    isRecording: boolean
-}
+import { VtuberData } from '@/app/types/vtuberData';
 
 
-const Card: React.FC<CardProps> = ({channelURL, title, thumbnail, isLiveNow, author, isRecording}) => { 
+const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, author, isRecording}) => { 
 
     const parseTitle = (title: string, length: number) => {
         if (title.length > length) {
@@ -41,21 +24,21 @@ const Card: React.FC<CardProps> = ({channelURL, title, thumbnail, isLiveNow, aut
                 <div className="flex flex-col">
                     <div className="flex space-x-4">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-900">
-                            <img src={author.thumbnail.url} alt="Youtube Thumbnail" className="w-8 h-8 rounded-full"/>
+                            <img src={author.iconURL} alt="Youtube Thumbnail" className="w-8 h-8 rounded-full"/>
                         </div>
                         <div className="flex flex-col">
                             <div className="text-md font-bold text-neutral-100">{author.name}</div>
-                            <div className="text-xs font-medium text-neutral-400">{isRecording ? "🔴" : ""}{isLiveNow ? " LIVE NOW" : "PREMIERE"}</div>
+                            <div className="text-xs font-medium text-neutral-400">{isRecording ? "🔴" : ""}{isLive ? " LIVE NOW" : "PREMIERE"}</div>
                         </div>
                     </div>
-                    <div className={`text-2xl font-semibold text-center translate-y-12 ${isLiveNow ? styles['rainbow-animation'] : ""}`}>{parsedTitle}</div>
+                    <div className={`text-2xl font-semibold text-center translate-y-12 ${isLive ? styles['rainbow-animation'] : ""}`}>{parsedTitle}</div>
                 </div>
 
             </div>
             <div className="absolute inset-0 z-10 bg-black bg-opacity-[85%] rounded-2xl h-full backdrop-blur-[2px]"/>
             <div
                 className="absolute inset-0 h-full w-full bg-contain bg-no-repeat drop-shadow-lg rounded-2xl"
-                style={{ backgroundImage: `url(${thumbnail.url})` }}
+                style={{ backgroundImage: `url(${thumbnailURL})` }}
             />
         </div>
     )
