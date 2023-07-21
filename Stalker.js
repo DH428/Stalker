@@ -763,6 +763,8 @@ class YTC{
     
                         await this.sleep(1);
                     }
+
+                    old_vod_size = fs.statSync(`${this.vod_path}/recorded/${vod_title}.mp4`).size;
                 }
 
                 logger(`${this.video_details["ownerChannelName"]}'s stream '${this.video_details["title"]}' ended (duration: ${this.unixFormatCreator(stopped_recording-started_recording, true)})`, this.channel_name,  "", this);
