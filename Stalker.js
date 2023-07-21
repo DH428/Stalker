@@ -224,7 +224,7 @@ class YTC{
 
             while(!got_data){
                 if(this.flatline){
-                    resolve();
+                    resolve(false);
                 }
 
                 await request({
@@ -279,7 +279,7 @@ class YTC{
         let prev_url = url;
 
         while(true){
-            if(this.flatline){
+            if(this.flatline || !url){
                 return [];
             }
 
@@ -960,9 +960,11 @@ async function vodManager(){
         let list = getAllFiles("vods");
         let time_now = Math.floor(new Date().getTime()/1000);
         
-        let available_disk_space = await getAvailableDiskSpace();
-        if(typeof available_disk_space != "boolean" && available_disk_space < 10000000){ // <10gb
-            logger(`disk space warning: ${available_disk_space} left !`);
+        if(process.platform == "linux"){
+            let available_disk_space = await getAvailableDiskSpace();
+            if(typeof available_disk_space != "boolean" && available_disk_space < 10000000){ // <10gb
+                logger(`disk space warning: ${available_disk_space} left !`);
+            }
         }
         
         //checking creation date of every vod in "vods/" and removing, if older than, based on prio, <age>
