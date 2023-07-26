@@ -3,6 +3,7 @@
 import React from 'react'
 import styles from './Card.module.css'
 import { VtuberData } from '@/types/vtuberData';
+import { motion } from 'framer-motion';
 
 
 const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, author, isRecording}) => { 
@@ -17,7 +18,12 @@ const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, au
     const parsedTitle = parseTitle(title, 50);
 
     return (
-        <div className="relative min-w-[400px] mx-10 mb-4 h-56 w-96 rounded-2xl bg-contain drop-shadow-lg transition-all duration-500 hover:translate-y-1 hover:cursor-pointer" onClick={() => {
+        <motion.div 
+            initial={{ opacity: 0, y: 200 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 200}}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="relative min-w-[400px] mx-10 mb-4 h-56 w-96 rounded-2xl bg-contain drop-shadow-lg transition-all duration-500 hover:translate-y-1 hover:cursor-pointer" onClick={() => {
             window.location.href = channelURL
         }}>            
             <div className="absolute inset-0 z-20 flex flex-col justify-between p-4">
@@ -40,7 +46,7 @@ const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, au
                 className="absolute inset-0 h-full w-full bg-contain bg-no-repeat drop-shadow-lg rounded-2xl"
                 style={{ backgroundImage: `url(${thumbnailURL})` }}
             />
-        </div>
+        </motion.div>
     )
 }
 

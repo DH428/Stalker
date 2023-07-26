@@ -1,6 +1,8 @@
 import React from 'react'
 import { VtuberData } from '@/types/vtuberData'
 import Card from '../Card/Card'
+import { motion, AnimatePresence } from 'framer-motion'
+
 
 import { nanoid } from 'nanoid'
 
@@ -21,16 +23,17 @@ const CardContainer: React.FC<CardContainerProps> = ({ vtubers, title }) => {
     function renderCards(vtubers: VtuberData[]) {
         return vtubers.map((vtuber) => {
             const { channelURL, title, thumbnailURL, isLive, author, isRecording } = vtuber
+            const id = nanoid();
             return (
-               <Card
-                    key={nanoid()}
-                    channelURL={channelURL} 
-                    title={title} 
-                    thumbnailURL={thumbnailURL} 
-                    isLive={isLive} 
-                    author={author} 
-                    isRecording={isRecording}
-                />
+                <Card
+                        key={id}
+                        channelURL={channelURL} 
+                        title={title} 
+                        thumbnailURL={thumbnailURL} 
+                        isLive={isLive} 
+                        author={author} 
+                        isRecording={isRecording}
+                    />
             )
         })
     };
@@ -44,7 +47,9 @@ const CardContainer: React.FC<CardContainerProps> = ({ vtubers, title }) => {
                     {mappedTitle}
                 </div>
                 <div className="absolute flex overflow-x-auto align-middle pb-6 pt-8 w-full rounded-r-2xl rounded-b-2xl shadow-[inset_0_-1px_8px_rgba(0,0,0,0.6)] bg-black bg-opacity-25">
-                    {renderCards(vtubers)}
+                    <AnimatePresence>
+                        {renderCards(vtubers)}
+                    </AnimatePresence>
                 </div>
             </div>
         </>
