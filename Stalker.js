@@ -224,7 +224,7 @@ class YTC{
 
             while(!got_data){
                 if(this.flatline){
-                    resolve();
+                    resolve(false);
                 }
 
                 await request({
@@ -241,14 +241,14 @@ class YTC{
                         }
 
                         if(info){
-                            logger(`successfully retrieved latest vod link of '${(this.channel_name ? this.channel_name : url_channel_)}' after ${c} retries`, this.channel_name ? this.channel_name : "",  "", this);
+                            logger(`successfully retrieved latest vod link of '${(this.channel_name || url_channel_)}' after ${c} retries`, this.channel_name || "",  "", this);
                         }
 
                         got_data = true;
                         resolve(vid_url);                        
                     }catch(e){
                         if(!info){
-                            logger(`failed to get data for '${(this.channel_name ? this.channel_name : url_channel_)}' (${e})`, this.channel_name ? this.channel_name : "", "ERROR", this);
+                            logger(`failed to get data for '${(this.channel_name || url_channel_)}' (${e})`, this.channel_name || "", "ERROR", this);
                             info = true;
                         }
                         c++;
@@ -257,7 +257,7 @@ class YTC{
 
                 if(c>100 && !warning){
                     warning = true;
-                    logger(`--> !!! '${(this.channel_name ? this.channel_name : url_channel_)}' cant be reached, please check your internet connection !!! <---`, this.channel_name ? this.channel_name : "", "WARNING", this);
+                    logger(`--> !!! '${(this.channel_name || url_channel_)}' cant be reached, please check your internet connection !!! <---`, this.channel_name || "", "WARNING", this);
                     sleep_time = 600;
                 }
 
@@ -279,7 +279,7 @@ class YTC{
         let prev_url = url;
 
         while(true){
-            if(this.flatline){
+            if(this.flatline || !url){
                 return [];
             }
 
@@ -293,16 +293,16 @@ class YTC{
             }catch(e){
                 if(e.statusCode == 410 || e.stack.includes("miniget")){
                     if(e.stack.includes("miniget")){
-                        logger(`miniget err ... is ... is this age restricted '${url}'?`, this.channel_name ? this.channel_name : "",  "", this);
+                        logger(`miniget err ... is ... is this age restricted '${url}'?`, this.channel_name || "",  "", this);
                     }else{
-                        logger(`no miniget err but still exception: ${e}`, this.channel_name ? this.channel_name : "", "WARNING", this)
+                        logger(`no miniget err but still exception: ${e}`, this.channel_name || "", "WARNING", this)
                     }
 
                     sleep_time = 300;
                 }
 
                 if(!info){
-                    logger(`failed to get latest data of '${url}' (${e})`, this.channel_name ? this.channel_name : "", "WARNING", this);
+                    logger(`failed to get latest data of '${url}' (${e})`, this.channel_name || "", "WARNING", this);
                     
                     info = true;
                 }
@@ -313,7 +313,7 @@ class YTC{
 
             //prevents infinite loop, if vod get privated/deleted/unavailable
             if(d>10){
-                logger(`too many retries, while trying to get latest vod info of '${url}', getting new latest vod url instead`, this.channel_name ? this.channel_name : "", "ERROR", this);
+                logger(`too many retries, while trying to get latest vod info of '${url}', getting new latest vod url instead`, this.channel_name || "", "ERROR", this);
                 this.url_latest_vid = await this.getLatestVidUrl(this.url_channel, false);
                 url = this.url_latest_vid;
                 d = 0;
@@ -330,8 +330,8 @@ class YTC{
         //cache["videoDetails"]["title"] = cache["videoDetails"]["title"].replace(/[^a-zA-Z0-9 ]/g, "").trim();
         cache["videoDetails"]["title"] = cache["videoDetails"]["title"].replace(/\\|\/|:|\*|\?|"|<|>|\|/g, "_").trim();
 
-        cache["videoDetails"]["title"] = cache["videoDetails"]["title"] ? cache["videoDetails"]["title"] : "empty_string";
-        cache["videoDetails"]["ownerChannelName"] = cache["videoDetails"]["ownerChannelName"] ? cache["videoDetails"]["ownerChannelName"] : "empty_string";
+        cache["videoDetails"]["title"] = cache["videoDetails"]["title"] || "empty_string";
+        cache["videoDetails"]["ownerChannelName"] = cache["videoDetails"]["ownerChannelName"] || "empty_string";
 
         this.open_conn_query_count--;
         return cache["videoDetails"]; //dont need more, crucial info is in "videoDetails"
@@ -608,18 +608,18 @@ class YTC{
 
         while(true){
             if(this.flatline){
-                logger(`killing ${this.channel_name ? this.channel_name : this.url_channel}`, this.channel_name ? this.channel_name : "", "INFO");
+                logger(`killing ${this.channel_name || this.url_channel}`, this.channel_name || "", "INFO");
 
                 await this.sleep(5);
 
                 let c = 0;
                 while(this.subprocess){
                     if(!info){
-                        logger(`${this.channel_name ? this.channel_name : this.url_channel}: recorder still running... waiting`, this.channel_name ? this.channel_name : "", "INFO");
+                        logger(`${this.channel_name || this.url_channel}: recorder still running... waiting`, this.channel_name || "", "INFO");
                     }
 
                     if(c>30){
-                        logger(`${this.channel_name ? this.channel_name : this.url_channel}: ignoring recorder...`, this.channel_name ? this.channel_name : "", "INFO");
+                        logger(`${this.channel_name || this.url_channel}: ignoring recorder...`, this.channel_name || "", "INFO");
                         break;
                     }
 
@@ -632,7 +632,7 @@ class YTC{
                 }
 
                 if(c){
-                    logger(`${this.channel_name ? this.channel_name : this.url_channel}: stopped recorder after ${c} retries`, this.channel_name ? this.channel_name : "", "INFO");
+                    logger(`${this.channel_name || this.url_channel}: stopped recorder after ${c} retries`, this.channel_name || "", "INFO");
                 }
 
                 await this.sleep(5);
@@ -640,19 +640,19 @@ class YTC{
                 c = 0;
                 while(this.currently_correcting.length > 0){
                     if(!c){
-                        logger(`${this.channel_name ? this.channel_name : this.url_channel}: corrector still running... waiting...`, this.channel_name ? this.channel_name : "", "INFO");
+                        logger(`${this.channel_name || this.url_channel}: corrector still running... waiting...`, this.channel_name || "", "INFO");
                     }
                     c += 1;
                     
                     if(c>30){
-                        logger(`${this.channel_name ? this.channel_name : this.url_channel}: ignoring corrector...`, this.channel_name ? this.channel_name : "", "INFO");
+                        logger(`${this.channel_name || this.url_channel}: ignoring corrector...`, this.channel_name || "", "INFO");
                         break;
                     }
 
                     await this.sleep(1);
                 }
                 
-                logger(`'oh, im die, thank you forever' - ${this.channel_name ? this.channel_name : this.url_channel}`, this.channel_name ? this.channel_name : "", "INFO");
+                logger(`'oh, im die, thank you forever' - ${this.channel_name || this.url_channel}`, this.channel_name || "", "INFO");
                 return;
             }
 
@@ -863,7 +863,7 @@ function logger(msg, log_name="", type="", ytc_object_ref=false) {
     fs.appendFile(debug_log_path + "/" + "debug_timeline.log", `${time_stamp}: ${msg}\n`, function (err){}); //easier timing overview
 
     if(type && log_name != "debug"){
-        fs.appendFile(debug_log_path + "/" + "debug.log", `${time_stamp}: ${type} IN '${log_name ? log_name : "idk"}': '${msg}'\n`, function (err){});
+        fs.appendFile(debug_log_path + "/" + "debug.log", `${time_stamp}: ${type} IN '${log_name || "idk"}': '${msg}'\n`, function (err){});
     }
 }
 
@@ -960,9 +960,11 @@ async function vodManager(){
         let list = getAllFiles("vods");
         let time_now = Math.floor(new Date().getTime()/1000);
         
-        let available_disk_space = await getAvailableDiskSpace();
-        if(typeof available_disk_space != "boolean" && available_disk_space < 10000000){ // <10gb
-            logger(`disk space warning: ${available_disk_space} left !`);
+        if(process.platform == "linux"){
+            let available_disk_space = await getAvailableDiskSpace();
+            if(typeof available_disk_space != "boolean" && available_disk_space < 10000000){ // <10gb
+                logger(`disk space warning: ${available_disk_space} left !`);
+            }
         }
         
         //checking creation date of every vod in "vods/" and removing, if older than, based on prio, <age>
