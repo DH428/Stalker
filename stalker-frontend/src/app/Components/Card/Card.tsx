@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, author, isRecording}) => { 
 
     const parseTitle = (title: string, length: number) => {
-        if (title.length > length) {
+        if (title?.length > length) {
             return title.slice(0, length) + "..."
         }
         return title

@@ -11,8 +11,8 @@ export function filterVtuber(vtubers: VtuberData[], criteria: FilterCriteria): V
         if (criteria.isLive && !vtuber.isLive) return false;
         if (criteria.channelName 
             && !vtuber
-                .author.name
-                .toLowerCase().includes(criteria.channelName)) return false;
+                .author?.name?.toLowerCase()
+                .includes(criteria.channelName)) return false;
         return true;
     });
 }

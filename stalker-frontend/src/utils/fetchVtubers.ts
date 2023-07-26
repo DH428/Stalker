@@ -11,8 +11,10 @@ export async function fetchVtuberData(): Promise<VtuberData[]> {
     const vtuber = data[vtuberURL];
     const videoDetails = vtuber.video_details;
     //get highquality thumbnail if not present use the default one
-    const videoThumbnailURL = videoDetails.thumbnails[4].url || videoDetails.thumbnails[0].url;
-    const authorIconURL = videoDetails.author.thumbnails[2].url || videoDetails.author.thumbnails[0].url;
+    const videoThumbnailURL = getHighestResThumbnail(videoDetails.thumbnails);
+    const authorIconURL = getHighestResThumbnail(
+      videoDetails.author?.thumbnails
+    );
 
     vtuberData.push({
       channelURL: vtuber.url_channel,
@@ -20,13 +22,24 @@ export async function fetchVtuberData(): Promise<VtuberData[]> {
       vodPath: vtuber.vod_path,
       thumbnailURL: videoThumbnailURL,
       author: {
-        name: videoDetails.author.name,
+        name: videoDetails.author?.name,
         iconURL: authorIconURL,
       },
-      isLive: videoDetails.liveBroadcastDetails.isLiveNow,
+      isLive: videoDetails.liveBroadcastDetails?.isLiveNow,
     });
   }
   return vtuberData;
 }
 
-
+function getHighestResThumbnail(
+  thumbnails: { url: string; width: number; height: number }[]
+) {
+  if (!thumbnails) return "";
+  let highestResThumbnail = thumbnails[0];
+  for (const thumbnail of thumbnails) {
+    if (thumbnail.width > highestResThumbnail.width) {
+      highestResThumbnail = thumbnail;
+    }
+  }
+  return highestResThumbnail?.url;
+}
