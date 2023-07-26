@@ -22,7 +22,7 @@ const CardContainer: React.FC<CardContainerProps> = ({ vtubers, title }) => {
 
     function renderCards(vtubers: VtuberData[]) {
         return vtubers.map((vtuber) => {
-            const { channelURL, title, thumbnailURL, isLive, author, isRecording } = vtuber
+            const { channelURL, title, thumbnailURL, isLive, author, isRecording, vodPath } = vtuber
             const id = nanoid();
             return (
                 <Card
@@ -33,6 +33,7 @@ const CardContainer: React.FC<CardContainerProps> = ({ vtubers, title }) => {
                         isLive={isLive} 
                         author={author} 
                         isRecording={isRecording}
+                        vodPath={vodPath}
                     />
             )
         })

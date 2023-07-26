@@ -1,25 +1,24 @@
+import { VtuberData } from '@/types/vtuberData';
 import { nanoid } from 'nanoid';
 import React from 'react';
 
 
 
 type SidebarProps = {
-    liveStreamers : {
-        iconURL: string,
-        name: string,
-        channelURL: string        
-    }[]
+    vtubers: VtuberData[]
 }
 
-const Sidebar : React.FC<SidebarProps> = ({liveStreamers}) => {
+const Sidebar : React.FC<SidebarProps> = ({vtubers}) => {
+
 
     function renderLiveStreamers() {
-        return liveStreamers.map((streamer) => {
-            const {channelURL, iconURL, name} = streamer
+        if(vtubers.length == 0) return (<p className=' font-semibold'>empty 😭</p>)
+
+        return vtubers.map((vtuber) => {
             return (
-                <label key={nanoid()} tabIndex={0} className="btn btn-ghost btn-circle avatar duration-250 transition-all hover:scale-110" onClick={() => window.location.href = channelURL}>
+                <label key={nanoid()} tabIndex={0} className="btn btn-ghost btn-circle avatar duration-250 transition-all hover:scale-110" onClick={() => window.location.href = vtuber.channelURL}>
                     <div className="w-24 rounded-full">
-                        <img src={iconURL} />
+                        <img src={vtuber.author.iconURL} />
                     </div>
                 </label>
             )

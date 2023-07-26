@@ -19,11 +19,10 @@ const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, au
 
     return (
         <motion.div 
-            initial={{ opacity: 0, y: 200 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 200}}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative min-w-[400px] mx-10 mb-4 h-56 w-96 rounded-2xl bg-contain drop-shadow-lg transition-all duration-500 hover:translate-y-1 hover:cursor-pointer" onClick={() => {
+            initial={{ opacity: 0, y: 200, scaleX: 1.05 }}
+            animate={{ opacity: 1, y: 0, scaleX: 1 }}
+            transition={{ duration: 0.125, delay: 0.25}}
+            className="relative min-w-[400px] mx-10 mb-4 h-56 w-96 rounded-2xl bg-contain drop-shadow-lg transition-all duration-500 hover:!translate-y-1 hover:!cursor-pointer" onClick={() => {
             window.location.href = channelURL
         }}>            
             <div className="absolute inset-0 z-20 flex flex-col justify-between p-4">

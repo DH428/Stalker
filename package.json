@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/DH428/Stalker#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "request": "^2.88.2",
     "ytdl-core": "^4.11.4"
