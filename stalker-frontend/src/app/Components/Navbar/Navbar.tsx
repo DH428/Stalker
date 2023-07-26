@@ -2,9 +2,17 @@
 
 import React from 'react'
 
+type NavbarProps = {
+    setSearchCriteria: (searchCriteria: string) => void
+}
 
+const Navbar: React.FC<NavbarProps> = ( {setSearchCriteria} ) => {
 
-function Navbar() {
+    function handleSearchInput(event: React.ChangeEvent<HTMLInputElement>) {
+        const searchValue = event.target.value.toLowerCase();
+        setSearchCriteria(searchValue);
+    }
+
     return (
         <div className="navbar backdrop-blur-xl z-30 shadow-xl sticky top-0">
             <div className="flex-1">
@@ -12,7 +20,7 @@ function Navbar() {
             </div>
             <div className="flex-none gap-2">
                 <div className="form-control">
-                    <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto mr-4" />
+                    <input type="text" placeholder="Search" onChange={handleSearchInput} className="input input-bordered w-24 md:w-auto mr-4" />
                 </div>
                 <div className="dropdown dropdown-end">
                     <label tabIndex={0} className="btn btn-ghost btn-circle avatar">

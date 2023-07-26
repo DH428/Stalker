@@ -4,6 +4,8 @@ import Navbar from "./Components/Navbar/Navbar";
 import CardContainer from "./Components/CardContainer/CardContainer";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import { VtuberData } from "../types/vtuberData";
+import { useState } from "react";
+import { filterVtuber } from "@/utils/filter";
 
 
 export default function Home() {
@@ -86,8 +88,8 @@ export default function Home() {
       isLive: true,
       isRecording: false,
       author: {
-        name: author.name,
-        iconURL: author.thumbnail.url
+        name: author2.name,
+        iconURL: author2.thumbnail.url
       }
     },
     {
@@ -97,25 +99,29 @@ export default function Home() {
       isLive: false,
       isRecording: false,
       author: {
-        name: author.name,
-        iconURL: author.thumbnail.url
+        name: author2.name,
+        iconURL: author2.thumbnail.url
       }
     },
     
   ];
 
 
+  const [searchCriteria, setSearchCriteria] = useState("");
+  const filteredVtubers = filterVtuber(vtubers, {channelName: searchCriteria})
+  console.log(filteredVtubers)
+
   return (
     <>
       <div className="h-screen flex flex-col">
         <main className="flex overflow-auto flex-wrap w-screen h-screen">
-          <Navbar />
+          <Navbar setSearchCriteria={setSearchCriteria} />
           <div className="flex w-screen flex-row min-h-screen max-h-screen overflow-y-hidden">
             <Sidebar liveStreamers={[
               { iconURL: "/android-chrome-192x192.png", name: "ina", channelURL: "https://www.youtube.com/channel/UCMwGHR0BTZuLsmjY_NT5Pwg" },
               { iconURL: "https://yt3.ggpht.com/8B_T08sx8R7XVi5Mwx_l9sjQm5FGWGspeujSvVDvd80Zyr-3VvVTRGVLOnBrqNRxZp6ZeXAV=s176-c-k-c0x00ffffff-no-nd-rj", name: "cali", channelURL: "https://www.youtube.com/channel/UCL_qhgtOy0dy1Agp8vkySQg" },
             ]} />
-            <CardContainer title="Recorded" vtubers={vtubers} />
+            <CardContainer title="Recorded" vtubers={filteredVtubers} />
           </div>
         </main>
       </div>
