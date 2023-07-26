@@ -1,5 +1,5 @@
 import React from 'react'
-import { VtuberData } from '@/app/types/vtuberData'
+import { VtuberData } from '@/types/vtuberData'
 import Card from '../Card/Card'
 
 import { nanoid } from 'nanoid'

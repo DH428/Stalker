@@ -2,7 +2,7 @@
 
 import React from 'react'
 import styles from './Card.module.css'
-import { VtuberData } from '@/app/types/vtuberData';
+import { VtuberData } from '@/types/vtuberData';
 
 
 const Card: React.FC<VtuberData> = ({channelURL, title, thumbnailURL, isLive, author, isRecording}) => { 

@@ -1016,6 +1016,8 @@ function GetChannels(){
             }
         }
         
+        
+
         cache = cache.filter(e => e);
 
         for(let i in cache){
