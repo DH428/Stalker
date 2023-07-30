@@ -1019,6 +1019,8 @@ function GetChannels(){
             }
         }
         
+        
+
         cache = cache.filter(e => e);
 
         for(let i in cache){
@@ -1083,6 +1085,8 @@ async function objectManager(){
 
 function api(){
     var app = express();
+    const cors = require('cors');
+    app.use(cors());
 
     app.get('/api/data', (req, res) => {
         return res.send(JSON.stringify(object_array));

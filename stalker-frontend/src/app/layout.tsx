@@ -1,12 +1,10 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import Navbar from './Components/Navbar/Navbar'
-
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'VTuber Stalker',
+  title: 'VTuber Stalker :3',
   description: 'Sergej if you read this you are gay',
 }
 
@@ -17,6 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+
       <body className={inter.className}>
       <svg className="absolute overflow-hidden h-screen blur-[100px] opacity-[6%] top-0 left-0" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
           <path fill="#FF0066" d="M52,-39.8C55.2,-24.5,37.2,-6.7,25,15.7C12.8,38.2,6.4,65.2,-3.1,67C-12.6,68.8,-25.2,45.3,-30.5,26.9C-35.8,8.4,-33.7,-4.9,-27.4,-22.1C-21.2,-39.2,-10.6,-60,6.9,-64C24.4,-68,48.8,-55.1,52,-39.8Z" transform="translate(100 100)" />

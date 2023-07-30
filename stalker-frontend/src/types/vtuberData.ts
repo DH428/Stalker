@@ -6,6 +6,7 @@ export type VtuberData = {
         name: string,
         iconURL: string,
     },
-    isRecording: boolean,
+    isRecording?: boolean,
     isLive: boolean,
+    vodPath: string,
 }
