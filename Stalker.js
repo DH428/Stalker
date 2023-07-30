@@ -535,6 +535,7 @@ class YTC{
         this.subprocess.on('error', (err) => {
             logger(`recorder of '${title}' threw an error: '${err}'`, this.channel_name, "ERROR", this);
             this.active_subprocss_count--;
+            this.subprocess = false;
         });
 
         this.subprocess.on('close', (code, sig) => {
@@ -545,8 +546,8 @@ class YTC{
             }
             
             this.active_subprocss_count--;
-            this.fixRecordedStreams();
             this.subprocess = false;
+            this.fixRecordedStreams();
         });
 
         //try{
