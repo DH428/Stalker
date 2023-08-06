@@ -1,4 +1,3 @@
-import { channels } from "./channels";
 import {
   LiveStream,
   YoutubeAPIResponse,
@@ -56,8 +55,10 @@ export async function getAllLiveChannels(channels: Channel[]) {
     channels.map(async (channel) => {
       const channelId = await getChannelId(channel.url);
       if (!channelId) return null;
+
       const { isLive, streamId } = await getLiveStreamID(channelId);
       if (!streamId) return null;
+
       return { stream: { isLive, streamId }, ...channel };
     })
   );
@@ -82,8 +83,3 @@ export async function getChannelId(channelURL: string) {
   const channelId = response.items[0].id.channelId;
   return channelId;
 }
-
-(async () => {
-  const c = await getAllLiveChannels(channels)
-  console.log(c)
-})()

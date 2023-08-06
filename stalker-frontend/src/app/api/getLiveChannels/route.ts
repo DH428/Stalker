@@ -5,7 +5,7 @@ export async function GET(request: Request) {
     try {
         const liveChannels = await getAllLiveChannels(channels);
         return new Response(JSON.stringify(liveChannels));
-    }catch{
+    }catch(_){
         return new Response("Error, Youtube Rate Limit reached!", { status: 500 });
     }
 }
