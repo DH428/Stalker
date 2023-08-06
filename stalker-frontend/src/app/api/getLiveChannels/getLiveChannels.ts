@@ -1,3 +1,4 @@
+import { channels } from "./channels";
 import {
   LiveStream,
   YoutubeAPIResponse,
@@ -81,3 +82,8 @@ export async function getChannelId(channelURL: string) {
   const channelId = response.items[0].id.channelId;
   return channelId;
 }
+
+(async () => {
+  const c = await getAllLiveChannels(channels)
+  console.log(c)
+})()
