@@ -7,7 +7,6 @@ import { filterVtuber } from "@/utils/filter";
 import { fetchVtuberData } from "@/utils/fetchVtubers";
 import { VtuberData } from "@/types/vtuberData";
 import { useInterval } from "usehooks-ts";
-import { ToastContainer, toast } from 'react-toastify';
 
 export default function Home() {
   const [vtubers, setVtubers] = useState<VtuberData[]>([]);
@@ -38,7 +37,7 @@ export default function Home() {
           <Navbar setSearchCriteria={setSearchCriteria} />
           <div className="flex w-screen flex-row min-h-screen max-h-screen overflow-y-hidden">
             <Sidebar vtubers={liveVtubers} />
-            <CardContainer title="Recorded" vtubers={filteredVtubers} />
+            <CardContainer title="Upcoming" vtubers={filteredVtubers} />
           </div>
         </main>
       </div>
